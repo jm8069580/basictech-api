@@ -27,20 +27,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ **Auth**: register, login, refresh, me. Guards `JwtAuthGuard` (global) y `RolesGuard` con decoradores `@Public()`, `@Roles(...)`, `@CurrentUser()`.
 - ✅ **Products**: CRUD + listado con filtros (categoría, marca, rango de precio, sort, búsqueda) y paginación vía DTO de query.
 - ✅ **Catalog**: categories y brands.
-- ⏳ **Pendiente**: orders, addresses, checkout/Stripe + webhook, upload/Cloudinary, admin dashboard, admin users.
+- ✅ **Addresses**: CRUD del usuario autenticado (listado, crear, actualizar, eliminar). Maneja el default (al marcar uno se desmarcan los demás) y devuelve 409 al borrar una dirección con pedidos asociados.
+- ✅ **Orders**: listado de pedidos del usuario, detalle (dueño o admin), crear pedido (valida que la dirección sea del usuario, genera `ORD-AAAA-0001`) y actualizar estado (admin, `@Roles('ADMIN')`).
+- ✅ **Checkout**: `POST /checkout` crea sesión de Stripe Checkout (S/ moneda PEN, envío gratis ≥ S/200). Errores de Stripe se mapean a 500 genérico. Requiere `STRIPE_SECRET_KEY`.
+- ✅ **Webhook**: `POST /webhook/stripe` (público, `rawBody` habilitado en `main.ts`). En `checkout.session.completed` crea dirección + pedido y descuenta stock. Requiere `STRIPE_WEBHOOK_SECRET`.
+- ✅ **Upload**: `POST /upload` (multipart, admin) sube a Cloudinary (valida JPG/PNG/WebP/GIF ≤ 5MB) y `DELETE /upload?publicId=` lo elimina. Requiere credenciales Cloudinary.
+- ✅ **Admin**: `GET /admin/dashboard` (stats, pedidos por estado, recientes) y `GET /admin/orders` (listado con filtros `status`/`limit`/`offset`).
+- ✅ **Admin users**: `GET /users` (filtros `role`/`status`) y `POST /users` (crea con bcrypt; email duplicado → 400), ambos admin.
+- ✅ **Frontend conectado**: el frontend (`react/ecommerce`) consume este API (`localhost:3001`) vía `src/lib/api.ts`; las API routes de Next (`/api/*`) y NextAuth fueron eliminadas.
 
-> No crear features nuevas en las API routes de Next (`react/ecommerce/src/app/api/*`); implementarlas aquí en Nest y apuntar el frontend a este API.
+> No crear features nuevas en el frontend; implementarlas aquí en Nest y consumirlas con `src/lib/api.ts` del frontend.
 
 ## Estructura
 
 ```
 src/
-├── main.ts                # Bootstrap, puerto desde .env (PORT=3001)
-├── app.module.ts          # ConfigModule global (.env), Prisma, Auth, Products, Catalog
+├── main.ts                # Bootstrap, puerto desde .env (PORT=3001), rawBody habilitado (webhook)
+├── app.module.ts          # ConfigModule global (.env), Prisma y todos los módulos
 ├── prisma/                # PrismaModule y PrismaService
 ├── auth/                  # AuthService/Controller, DTOs, guards, strategies JWT
 ├── products/              # ProductsService/Controller, DTOs (create/update/query), transformers
-└── catalog/               # CategoriesController, BrandsController, transformers
+├── catalog/               # CategoriesController, BrandsController, transformers
+├── addresses/             # CRUD de direcciones del usuario, transformers
+├── orders/                # Pedidos del usuario + detalle, crear pedido, estado (admin)
+├── checkout/              # Sesión de Stripe Checkout
+├── webhook/               # Webhook de Stripe (raw body), crea orden al completar pago
+├── upload/                # Subida/borrado de imágenes en Cloudinary (admin)
+├── admin/                 # Dashboard y listado de pedidos (admin)
+└── users/                 # Gestión de usuarios (listar/crear, admin)
 ```
 
 ## Convenciones

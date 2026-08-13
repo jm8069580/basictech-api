@@ -45,13 +45,27 @@ npm run start:dev
 | POST | `/categories` | Crear categoría | ADMIN |
 | GET | `/brands` | Marcas con conteo | Público |
 | POST | `/brands` | Crear marca | ADMIN |
+| GET | `/addresses` | Direcciones del usuario | Autenticado |
+| POST | `/addresses` | Crear dirección | Autenticado |
+| GET/PUT/DELETE | `/addresses/:id` | Obtener/actualizar/eliminar dirección (solo dueño) | Autenticado |
+| GET | `/orders` | Pedidos del usuario | Autenticado |
+| POST | `/orders` | Crear pedido (valida la dirección) | Autenticado |
+| GET | `/orders/:id` | Detalle del pedido (dueño o admin) | Autenticado |
+| PUT | `/orders/:id` | Actualizar estado | ADMIN |
+| POST | `/checkout` | Crear sesión de Stripe Checkout | Autenticado |
+| POST | `/webhook/stripe` | Webhook de Stripe (crea orden al completar pago) | Público |
+| POST | `/upload` | Subir imagen a Cloudinary (multipart) | ADMIN |
+| DELETE | `/upload?publicId=` | Eliminar imagen de Cloudinary | ADMIN |
+| GET | `/admin/dashboard` | Stats del dashboard | ADMIN |
+| GET | `/admin/orders` | Listado de pedidos (status/limit/offset) | ADMIN |
+| GET | `/users` | Listado de usuarios (role/status) | ADMIN |
+| POST | `/users` | Crear usuario | ADMIN |
 
-## Pendiente de migrar
+## Estado
 
-- Orders y addresses
-- Checkout/Stripe + webhook
-- Upload/Cloudinary
-- Admin dashboard y admin users
+- ✅ Frontend conectado al API (`localhost:3001`) vía `src/lib/api.ts` (JWT + auto-refresh).
+- ✅ Eliminadas las API routes de Next (`/api/*`) y NextAuth del frontend.
+- ⚠️ `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` y credenciales Cloudinary siguen como placeholders en `.env`; checkout/upload reales requieren credenciales válidas.
 
 ## Scripts
 

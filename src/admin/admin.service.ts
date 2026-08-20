@@ -48,6 +48,8 @@ export interface AdminOrderDto {
   status: string;
   subtotal: number;
   shipping: number;
+  tax: number;
+  discount: number;
   total: number;
   paymentMethod: string;
   shippingAddress: {
@@ -179,6 +181,8 @@ export class AdminService {
         status: order.status.toLowerCase(),
         subtotal: Number(order.subtotal),
         shipping: Number(order.shipping),
+        tax: Number(order.tax),
+        discount: Number(order.discount),
         total: Number(order.total),
         paymentMethod: order.paymentMethod,
         shippingAddress: {

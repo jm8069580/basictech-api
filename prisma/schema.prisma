@@ -38,7 +38,44 @@ enum PaymentMethod {
   CASH_ON_DELIVERY
 }
 
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+enum CouponStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+}
+
 // ==================== MODELS ====================
+
+/// Configuración key-value de la tienda (moneda, envío, prefijo de orden, etc.)
+/// Permite cambiar parámetros sin redeploy.
+model StoreConfig {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("store_config")
+}
+
+/// Tarifas de envío configurables por tienda (reemplaza montos hardcodeados).
+model ShippingRate {
+  id          String   @id @default(cuid())
+  name        String
+  amount      Decimal  @db.Decimal(10, 2)
+  currency    String   @default("pen")
+  minDays     Int      @default(3)
+  maxDays     Int      @default(5)
+  minSubtotal Decimal? @db.Decimal(10, 2)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("shipping_rates")
+}
 
 model User {
   id        String     @id @default(cuid())
@@ -54,6 +91,8 @@ model User {
 
   addresses Address[]
   orders    Order[]
+  reviews   Review[]
+  wishlistItems WishlistItem[]
 
   @@map("users")
 }
@@ -107,6 +146,8 @@ model Product {
   brand   Brand @relation(fields: [brandId], references: [id])
 
   orderItems OrderItem[]
+  reviews    Review[]
+  wishlistItems WishlistItem[]
 
   @@index([categoryId])
   @@index([brandId])
@@ -142,6 +183,8 @@ model Order {
   status          OrderStatus @default(PENDING)
   subtotal        Decimal     @db.Decimal(10, 2)
   shipping        Decimal     @db.Decimal(10, 2)
+  tax             Decimal     @db.Decimal(10, 2) @default(0)
+  discount        Decimal     @db.Decimal(10, 2) @default(0)
   total           Decimal     @db.Decimal(10, 2)
   paymentMethod   String
   stripeSessionId String?
@@ -154,6 +197,9 @@ model Order {
 
   addressId String
   address   Address @relation(fields: [addressId], references: [id])
+
+  couponId String?
+  coupon   Coupon? @relation(fields: [couponId], references: [id])
 
   items OrderItem[]
 
@@ -177,4 +223,59 @@ model OrderItem {
 
   @@index([orderId])
   @@map("order_items")
+}
+
+model Coupon {
+  id          String       @id @default(cuid())
+  code        String       @unique
+  description String?
+  discountType DiscountType
+  discountValue Decimal    @db.Decimal(10, 2)
+  minSubtotal Decimal?     @db.Decimal(10, 2)
+  maxDiscount Decimal?     @db.Decimal(10, 2)
+  status      CouponStatus @default(ACTIVE)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  usageLimit  Int?
+  usedCount   Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  orders Order[]
+
+  @@map("coupons")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  title     String?
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([productId])
+  @@map("reviews")
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@map("wishlist_items")
 }

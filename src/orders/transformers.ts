@@ -24,6 +24,8 @@ export interface OrderListItemDto {
   status: string;
   subtotal: number;
   shipping: number;
+  tax: number;
+  discount: number;
   total: number;
   paymentMethod: string;
   notes: string | null;
@@ -50,6 +52,8 @@ export interface OrderDetailDto {
   status: string;
   subtotal: number;
   shipping: number;
+  tax: number;
+  discount: number;
   total: number;
   paymentMethod: string;
   notes: string | null;
@@ -90,6 +94,8 @@ export function transformOrderListItem(
     status: order.status.toLowerCase(),
     subtotal: Number(order.subtotal),
     shipping: Number(order.shipping),
+    tax: Number(order.tax),
+    discount: Number(order.discount),
     total: Number(order.total),
     paymentMethod: order.paymentMethod,
     notes: order.notes,
@@ -120,6 +126,8 @@ export function transformOrderDetail(
     status: order.status.toLowerCase(),
     subtotal: Number(order.subtotal),
     shipping: Number(order.shipping),
+    tax: Number(order.tax),
+    discount: Number(order.discount),
     total: Number(order.total),
     paymentMethod: order.paymentMethod,
     notes: order.notes,

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinary } from 'cloudinary';
 import { configureCloudinary } from './cloudinary';
+import { StoreConfigService } from '../config/store-config.service';
 
 export interface UploadResult {
   url: string;
@@ -10,11 +11,16 @@ export interface UploadResult {
 
 @Injectable()
 export class UploadService {
-  constructor(config: ConfigService) {
+  constructor(
+    config: ConfigService,
+    private readonly storeConfig: StoreConfigService,
+  ) {
     configureCloudinary(config);
   }
 
   async uploadImage(buffer: Buffer): Promise<UploadResult> {
+    const settings = await this.storeConfig.getAll();
+
     const result = await new Promise<{
       secure_url: string;
       public_id: string;
@@ -22,7 +28,7 @@ export class UploadService {
       cloudinary.uploader
         .upload_stream(
           {
-            folder: 'basictech/products',
+            folder: settings.cloudinaryFolder,
             resource_type: 'image',
             transformation: [
               { width: 1200, height: 1200, crop: 'limit' },

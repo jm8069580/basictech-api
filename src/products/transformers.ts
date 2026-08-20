@@ -20,9 +20,18 @@ export interface ProductDto {
 type ProductWithRelations = Product & {
   category: Category;
   brand: Brand;
+  reviews?: { rating: number }[];
 };
 
 export function transformProduct(product: ProductWithRelations): ProductDto {
+  const reviews = product.reviews ?? [];
+  const avgRating =
+    reviews.length > 0
+      ? Math.round(
+          (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) * 10,
+        ) / 10
+      : 0;
+
   return {
     id: product.id,
     name: product.name,
@@ -39,6 +48,6 @@ export function transformProduct(product: ProductWithRelations): ProductDto {
     stock: product.stock,
     isNew: product.isNew,
     isFeatured: product.isFeatured,
-    rating: 4.5,
+    rating: avgRating,
   };
 }

@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { OrderStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { StoreConfigService } from '../config/store-config.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import {
@@ -18,7 +19,10 @@ import {
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storeConfig: StoreConfigService,
+  ) {}
 
   async findAll(userId: string): Promise<OrderListItemDto[]> {
     const orders = await this.prisma.order.findMany({
@@ -39,10 +43,14 @@ export class OrdersService {
       throw new NotFoundException('Direccion no encontrada');
     }
 
+    const settings = await this.storeConfig.getAll();
     const orderCount = await this.prisma.order.count();
-    const orderNumber = `ORD-${new Date().getFullYear()}-${String(
+    const orderNumber = `${settings.orderPrefix}-${new Date().getFullYear()}-${String(
       orderCount + 1,
     ).padStart(4, '0')}`;
+
+    const taxRate = settings.taxRate;
+    const tax = dto.subtotal * taxRate;
 
     const order = await this.prisma.order.create({
       data: {
@@ -50,6 +58,8 @@ export class OrdersService {
         status: 'PENDING',
         subtotal: dto.subtotal,
         shipping: dto.shipping,
+        tax,
+        discount: 0,
         total: dto.total,
         paymentMethod: dto.paymentMethod,
         notes: dto.notes ?? null,

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { PrismaService } from '../prisma/prisma.service';
+import { StoreConfigService } from '../config/store-config.service';
 
 @Injectable()
 export class WebhookService {
@@ -10,6 +11,7 @@ export class WebhookService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly storeConfig: StoreConfigService,
   ) {
     this.stripe = new Stripe(
       this.config.get<string>('STRIPE_SECRET_KEY') ?? 'sk_test_placeholder',
@@ -91,7 +93,7 @@ export class WebhookService {
         data: {
           userId: user.id,
           addressId: address.id,
-          orderNumber: `BT-${Date.now()}`,
+          orderNumber: await this.generateOrderNumber(),
           status: 'PROCESSING',
           subtotal,
           shipping,
@@ -126,5 +128,13 @@ export class WebhookService {
     } catch (error) {
       console.error('Error processing order:', error);
     }
+  }
+
+  private async generateOrderNumber(): Promise<string> {
+    const settings = await this.storeConfig.getAll();
+    const count = await this.prisma.order.count();
+    return `${settings.orderPrefix}-${new Date().getFullYear()}-${String(
+      count + 1,
+    ).padStart(4, '0')}`;
   }
 }

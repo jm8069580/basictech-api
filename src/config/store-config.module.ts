@@ -1,0 +1,11 @@
+import { Global, Module } from '@nestjs/common';
+import { StoreConfigController } from './store-config.controller';
+import { StoreConfigService } from './store-config.service';
+
+@Global()
+@Module({
+  controllers: [StoreConfigController],
+  providers: [StoreConfigService],
+  exports: [StoreConfigService],
+})
+export class StoreConfigModule {}

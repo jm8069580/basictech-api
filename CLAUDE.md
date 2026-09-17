@@ -59,11 +59,11 @@ Los parámetros se leen de `.env` primero, luego de la tabla `store_config` (key
 |-----|---------|---------|-------------|
 | appName | `APP_NAME` | BasicTechShop | Nombre de la tienda |
 | appUrl | `APP_URL` | http://localhost:3000 | URL del frontend |
-| currency | `CURRENCY` | pen | Moneda Stripe (pen, usd, eur) |
+| currency | `CURRENCY` | usd | Moneda Stripe (usd, pen, eur) |
 | orderPrefix | `ORDER_PREFIX` | BT | Prefijo de número de orden |
-| shippingCountries | `SHIPPING_COUNTRIES` | PE | Países permitidos (CSV) |
+| shippingCountries | `SHIPPING_COUNTRIES` | PA | Países permitidos (CSV) |
 | freeShippingThreshold | `FREE_SHIPPING_THRESHOLD` | 200 | Subtotal mínimo para envío gratis |
-| taxRate | `TAX_RATE` | 0 | Tasa de impuesto (0.18 = 18% IGV) |
+| taxRate | `TAX_RATE` | 0.07 | Tasa de impuesto (0.07 = 7% ITBMS Panamá) |
 | cloudinaryFolder | `CLOUDINARY_FOLDER` | basictech/products | Folder de Cloudinary |
 
 Las tarifas de envío se configuran en la tabla `shipping_rates`.

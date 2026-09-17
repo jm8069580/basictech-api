@@ -157,7 +157,7 @@ export class CouponsService {
         return {
           valid: false,
           discount: 0,
-          message: `Subtotal minimo requerido: S/${Number(coupon.minSubtotal)}`,
+          message: `Subtotal minimo requerido: $${Number(coupon.minSubtotal)}`,
         };
       }
     }

@@ -27,11 +27,11 @@ const ENV_KEYS = {
 const DEFAULTS: StoreSettings = {
   appName: 'BasicTechShop',
   appUrl: 'http://localhost:3000',
-  currency: 'pen',
+  currency: 'usd',
   orderPrefix: 'BT',
-  shippingCountries: ['PE'],
+  shippingCountries: ['PA'],
   freeShippingThreshold: 200,
-  taxRate: 0,
+  taxRate: 0.07,
   cloudinaryFolder: 'basictech/products',
 };
 

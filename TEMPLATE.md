@@ -29,7 +29,7 @@ CURRENCY="usd"          # pen, usd, eur, etc.
 ORDER_PREFIX="<SIGLAS>" # p. ej. ACME
 SHIPPING_COUNTRIES="US,CA"
 FREE_SHIPPING_THRESHOLD="100"
-TAX_RATE="0.18"         # 18% IGV Perú, 0% para precios tax-included
+TAX_RATE="0.07"         # 0.07 = 7% ITBMS Panamá, 0.18 = 18% IGV Perú, 0% tax-included
 
 # Cloudinary folder del cliente
 CLOUDINARY_FOLDER="<cliente>/products"
